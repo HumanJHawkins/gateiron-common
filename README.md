@@ -7,16 +7,17 @@ forms, tables, badges, notices, the account menu.
 ## Install
 
 ```bash
-npm install --allow-git=root github:HumanJHawkins/gateiron-common#v0.1.0
+npm install --allow-git=all github:HumanJHawkins/gateiron-common#v0.1.1
 ```
 
 Install a tag, not a branch.
 
-npm 12 blocks git dependencies by default (`EALLOWGIT`). Put `allow-git=root`
-in the project's `.npmrc` so the setting travels with the repository — `root`
-permits only dependencies this `package.json` names, not ones a transitive
-dependency reaches for. A container build also needs `git` installed and
-`.npmrc` copied before `npm ci`.
+npm 12 blocks git dependencies by default (`EALLOWGIT`). Put `allow-git=all`
+in the project's `.npmrc` so the setting travels with the repository. The
+narrower `root` looks right and works for a first install, but refuses an
+already-locked git dependency on reinstall (npm/cli#9189), so an upgrade fails
+until it is widened. A container build also needs `git` installed and `.npmrc`
+copied before `npm ci`.
 
 ## Serve the assets
 

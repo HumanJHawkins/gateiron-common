@@ -54,12 +54,13 @@ needs fails here.
 ## Mechanics
 
 ```bash
-npm install --allow-git=root github:HumanJHawkins/gateiron-common#v0.1.0
+npm install --allow-git=all github:HumanJHawkins/gateiron-common#v0.1.1
 ```
 
-npm 12 blocks git dependencies by default (`EALLOWGIT`). Put `allow-git=root`
-in the project's `.npmrc`. A container build needs `git` installed and `.npmrc`
-copied before `npm ci`.
+npm 12 blocks git dependencies by default (`EALLOWGIT`). Put `allow-git=all`
+in the project's `.npmrc`; the narrower `root` refuses an already-locked git
+dependency on reinstall (npm/cli#9189). A container build needs `git` installed
+and `.npmrc` copied before `npm ci`.
 
 Serve the files from the installed package rather than copying them into
 `webroot`:
