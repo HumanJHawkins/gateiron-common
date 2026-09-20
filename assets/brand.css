@@ -20,7 +20,7 @@
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   /* paper / surface tones (light → dark) */
   --paper-lightest: #f9f5eb;
@@ -85,13 +85,16 @@
 
   --radius: 0.5rem;
   --radius-pill: 999px;
-  --bar-h: 3.5rem;
+  --bar-h: 4.25rem;
+  --shell: 1140px;   /* GateIron's .wrap */
 }
 
 /* Warm charcoals rather than neutral greys, so clay and pine keep their
    temperature. Accents move a rung lighter; the dark rungs go muddy here. */
+/* Opt-in: page() adds .gi-dark-auto to <html> for darkMode: 'auto'. */
+:root.gi-dark-auto { color-scheme: light dark; }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root.gi-dark-auto {
     --bg: #17140f;
     --surface: #211d17;
     --surface-2: #2b2620;
@@ -130,9 +133,9 @@ body {
 }
 
 main {
-  max-width: 64rem;
+  max-width: var(--shell);
   margin: 0 auto;
-  padding: 1.75rem 1.25rem 4rem;
+  padding: 2rem 28px 4rem;
 }
 main:focus { outline: none; }
 main.narrow { max-width: 42rem; }
@@ -187,10 +190,10 @@ p { margin: 0 0 0.9rem; }
 }
 
 .topbar-inner {
-  max-width: 72rem;
+  max-width: var(--shell);
   margin: 0 auto;
   min-height: var(--bar-h);
-  padding: 0.45rem 1.25rem;
+  padding: 14px 28px;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -206,11 +209,11 @@ p { margin: 0 0 0.9rem; }
   white-space: nowrap;
   flex: 0 0 auto;
 }
-.brand img { height: 2.1rem; width: auto; display: block; }
+.brand img { height: 40px; width: auto; display: block; }
 .brand .wordmark {
   font-family: 'Fraunces', Georgia, serif;
   font-weight: 600;
-  font-size: 1.12rem;
+  font-size: 1.3rem;
   letter-spacing: -0.01em;
   display: flex;
   flex-direction: column;
@@ -219,7 +222,7 @@ p { margin: 0 0 0.9rem; }
 .brand .wordmark small {
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-weight: 500;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
   color: var(--text-muted);
 }
@@ -276,8 +279,8 @@ p { margin: 0 0 0.9rem; }
 .account .who b { display: block; color: var(--text); font-weight: 600; }
 
 .avatar {
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 39px;
+  height: 39px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -295,7 +298,7 @@ p { margin: 0 0 0.9rem; }
 .avatar.has-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* Holds the bar's height while a client script fills it. */
-.account-slot { display: flex; align-items: center; min-height: 2.2rem; }
+.account-slot { display: flex; align-items: center; min-height: 39px; }
 
 .account-menu {
   position: absolute;
@@ -524,42 +527,46 @@ td.num { white-space: nowrap; color: var(--text-muted); font-variant-numeric: ta
 .prio-normal { font-weight: 500; }
 .prio-low { font-weight: 400; font-style: italic; }
 
-/* ---------------- footer ---------------- */
+/* ---------------- footer ----------------
+   The company block sits at the bottom of every site, so the page ends saying
+   GateIron even where the bar says the product. */
 .site-footer {
-  border-top: 1px solid var(--border-color);
-  background: var(--surface);
-  margin-top: 3rem;
+  background: var(--ink);
+  color: rgba(243, 236, 221, 0.7);
+  margin-top: 4rem;
+  padding: 54px 0 40px;
+  font-size: 0.92rem;
 }
-.site-footer .inner {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 1.25rem;
+.site-footer .inner { max-width: var(--shell); margin: 0 auto; padding: 0 28px; }
+.site-footer .grid {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
   flex-wrap: wrap;
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
-.site-footer .footer-links { display: flex; flex-wrap: wrap; }
-.site-footer a { color: var(--text-muted); text-decoration: none; margin-right: 1rem; }
-.site-footer a:hover { color: var(--accent); text-decoration: underline; }
-.site-footer .by { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
-.site-footer .by img { height: 1.6rem; width: auto; opacity: 0.85; }
+.site-footer .brand { color: #f3ecdd; }
+.site-footer .brand small { color: rgba(243, 236, 221, 0.5); }
+.site-footer .brand img { height: 44px; }
+.site-footer .footer-links { display: flex; gap: 26px; flex-wrap: wrap; }
+.site-footer a { color: rgba(243, 236, 221, 0.78); text-decoration: none; font-weight: 500; }
+.site-footer a:hover { color: #f3ecdd; text-decoration: underline; }
+.site-footer .fine-print {
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(243, 236, 221, 0.12);
+  font-size: 0.82rem;
+  color: rgba(243, 236, 221, 0.45);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
 /* Hides nothing - the consumer passes a shorter link list - but the byline
    stops competing for attention. */
-.site-footer.is-classroom { background: transparent; }
-.site-footer.is-classroom .by { opacity: 0.7; }
-.site-footer.is-classroom .by img { height: 1.2rem; }
-
-.site-footer .fine-print {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 0 1.25rem 1.25rem;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
+.site-footer.is-classroom { padding: 28px 0 24px; }
+.site-footer.is-classroom .brand img { height: 30px; }
 
 /* ---------------- compact density ----------------
    A game page keeps its board height. Same markup, one class on <body>. */

@@ -3,6 +3,24 @@
 Semver. Changing a token's value is a minor. Removing a token, renaming a
 class, or changing what a function returns is a major.
 
+## 0.2.0 — 2026-09-20
+
+**Breaking.** The dark theme is now opt-in, the bar and footer changed shape,
+and a site that is not GateIron.com must say so.
+
+- `topBar({ mark })` — raw HTML for the product's own mark, `'gate'` for
+  GateIron's, `null` for none. Defaults to `'gate'`, so GateIron needs no
+  argument and every other site must pass one.
+- `siteFooter` now renders GateIron's own footer: the company block with the
+  light mark, name and locality on the left, links on the right, fine print
+  under a rule. `brand` overrides it, `brand: null` omits it. `byline` is gone;
+  `finePrint` takes an array.
+- Light unless asked. `page({ darkMode: 'auto' })` adds `.gi-dark-auto` to
+  `<html>` and honours the system preference. Anything relying on dark by
+  default loses it.
+- Bar and footer metrics are GateIron's: 1140px shell, 28px gutters, 40px mark,
+  39px avatar, 14px bar padding.
+
 ## 0.1.1 — 2026-09-20
 
 Editorial pass over every comment and document in the repository.

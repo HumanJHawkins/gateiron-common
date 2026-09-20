@@ -154,3 +154,31 @@ test('the bar GateIron needs can be built from this package', () => {
   assert.ok(html.includes('?v=20260920-a'), 'the consumer\'s cache marker was not used');
   assert.ok(!/<script|\son[a-z]+\s*=/i.test(html));
 });
+
+test('only a site that passes mark: "gate" wears the gate in its bar', () => {
+  // The gate is the company's. A product putting it in its own top bar is
+  // claiming to be GateIron.
+  const product = brand.topBar({ product: 'NotUserError', mark: null, assets: ASSETS });
+  assert.ok(!product.includes('gate-dark.png'));
+  assert.ok(product.includes('NotUserError'));
+
+  const gateiron = brand.topBar({ product: 'GateIron, LLC', mark: 'gate', assets: ASSETS });
+  assert.ok(gateiron.includes('gate-dark.png'));
+
+  // Default stays the gate, so GateIron needs no argument.
+  assert.ok(brand.topBar({ assets: ASSETS }).includes('gate-dark.png'));
+});
+
+test('the footer carries the company whatever the bar says', () => {
+  const f = brand.siteFooter({ assets: ASSETS, links: [{ href: '/privacy', label: 'Privacy' }],
+    finePrint: ['© 2026 GateIron, LLC'] });
+  assert.ok(f.includes('GateIron, LLC') && f.includes('Hood River, Oregon'));
+  assert.ok(f.includes('gate-light.png'), 'the dark footer needs the light mark');
+  assert.ok(f.includes('fine-print'));
+});
+
+test('dark is opt-in', () => {
+  assert.ok(!brand.page({ title: 't', assets: ASSETS }).includes('gi-dark-auto'));
+  assert.ok(brand.page({ title: 't', assets: ASSETS, darkMode: 'auto' })
+    .includes('<html lang="en" class="gi-dark-auto">'));
+});

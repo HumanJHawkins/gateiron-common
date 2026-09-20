@@ -29,14 +29,24 @@ function initials(person) {
 }
 
 /**
- * The gate. Two files: the mark is dark ink and disappears on a dark ground.
- * `alt` is empty - the wordmark beside it already names the product.
+ * The GateIron gate, in the tone that shows on the given ground.
+ * `alt` is empty - the wordmark beside it already names the company.
  */
-function gateMark(assets) {
-  return '<picture>'
-    + '<source srcset="' + esc(assetUrl(assets, 'gate-light.png')) + '" media="(prefers-color-scheme: dark)">'
-    + '<img src="' + esc(assetUrl(assets, 'gate-dark.png')) + '" alt="" width="148" height="96">'
-    + '</picture>';
+function gateMark(assets, tone) {
+  const file = tone === 'light' ? 'gate-light.png' : 'gate-dark.png';
+  return '<img class="gate" src="' + esc(assetUrl(assets, file)) + '" alt="" width="148" height="96">';
+}
+
+/**
+ * The image beside a product's wordmark. `mark` is raw HTML - an <img> or an
+ * inline <svg> the product supplies - or 'gate' for GateIron's own, or null.
+ * Only GateIron.com should wear the gate in its top bar; a product that puts
+ * it there is claiming to be the company.
+ */
+function productMark(mark, assets) {
+  if (mark === null || mark === undefined) return '';
+  if (mark === 'gate') return gateMark(assets, 'dark');
+  return String(mark);
 }
 
 function navHtml(nav) {
@@ -103,7 +113,7 @@ function topBar(opts) {
   return '<header class="topbar">'
     + '<div class="topbar-inner">'
     + '<a class="brand" href="' + esc(o.home || '/') + '">'
-    + gateMark(o.assets)
+    + productMark(o.mark === undefined ? 'gate' : o.mark, o.assets)
     + '<span class="wordmark">' + esc(o.product || 'GateIron') + context + '</span>'
     + '</a>'
     + navHtml(o.nav)
@@ -115,23 +125,33 @@ function topBar(opts) {
 }
 
 /**
+ * The company block on the left, links on the right, fine print underneath -
+ * the same shape on every site, so the bottom of the page says GateIron even
+ * where the top says the product.
+ *
  * `variant: 'classroom'` is the quieter footer for pages a child may be
- * reading. It sets the class and the default byline; the links are passed in.
+ * reading. It sets the class; the links are still passed in.
  */
 function siteFooter(opts) {
   const o = opts || {};
   const classroom = o.variant === 'classroom';
+  const brand = o.brand === null ? '' : (() => {
+    const b = o.brand || {};
+    return '<a class="brand" href="' + esc(b.href || 'https://gateiron.com') + '">'
+      + gateMark(o.assets, 'light')
+      + '<span class="wordmark">' + esc(b.name || 'GateIron, LLC')
+      + '<small>' + esc(b.locality || 'Hood River, Oregon') + '</small></span></a>';
+  })();
   const links = (o.links || []).map((l) => {
     const rel = l.external ? ' target="_blank" rel="noopener"' : '';
     return '<a href="' + esc(l.href) + '"' + rel + '>' + esc(l.label) + '</a>';
   }).join('');
-  const byline = o.byline === null ? ''
-    : '<div class="by"><span>' + esc(o.byline || 'A GateIron product') + '</span>'
-      + gateMark(o.assets) + '</div>';
-  const fine = o.finePrint ? '<div class="fine-print">' + esc(o.finePrint) + '</div>' : '';
+  const fine = (o.finePrint || []).map((t) => '<span>' + esc(t) + '</span>').join('');
   return '<footer class="site-footer' + (classroom ? ' is-classroom' : '') + '">'
-    + '<div class="inner"><div class="footer-links">' + links + '</div>' + byline + '</div>'
-    + fine
+    + '<div class="inner">'
+    + '<div class="grid">' + brand + '<div class="footer-links">' + links + '</div></div>'
+    + (fine ? '<div class="fine-print">' + fine + '</div>' : '')
+    + '</div>'
     + '</footer>';
 }
 
@@ -139,7 +159,11 @@ function siteFooter(opts) {
 function page(opts) {
   const o = opts || {};
   const bodyClass = o.density === 'compact' ? ' class="gi-compact"' : (o.bodyClass ? ' class="' + esc(o.bodyClass) + '"' : '');
-  return '<!doctype html>\n<html lang="' + esc(o.lang || 'en') + '">\n<head>\n'
+  // Light unless the page asks. A product whose users arrive worried - a help
+  // desk, a classroom - reads better bright, and GateIron has only ever had
+  // paper, so honouring the system preference is opt-in.
+  const rootClass = o.darkMode === 'auto' ? ' class="gi-dark-auto"' : '';
+  return '<!doctype html>\n<html lang="' + esc(o.lang || 'en') + '"' + rootClass + '>\n<head>\n'
     + '<meta charset="utf-8">\n'
     + '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
     + '<title>' + esc(o.title) + '</title>\n'
