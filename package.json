@@ -1,0 +1,29 @@
+{
+  "name": "gateiron-brand",
+  "version": "0.1.0",
+  "description": "GateIron's house style: palette, faces, top bar, footer and components, shared by every GateIron site.",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "GateIron, LLC",
+  "repository": "github:HumanJHawkins/gateiron-brand",
+  "main": "chrome.js",
+  "exports": {
+    ".": "./chrome.js",
+    "./assets/*": "./assets/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "chrome.js",
+    "assets",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node test/chrome.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {},
+  "sideEffects": false
+}
