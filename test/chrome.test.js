@@ -144,3 +144,26 @@ test('the stylesheet fetches nothing from a third party', () => {
     assert.ok(!/^https?:|^\/\//.test(u), 'the stylesheet reaches off-site: ' + u);
   }
 });
+
+test('the bar GateIron needs can be built from this package', () => {
+  // Not a migration - a standing check that the API still fits the consumer
+  // that has not adopted it yet. GateIron's bar is: compact density, its own
+  // button row before the account chip, and an account slot its client fills
+  // from /api/me after load.
+  const html = brand.topBar({
+    home: '/',
+    product: 'GateIron, LLC',
+    context: 'Hood River · Oregon',
+    density: 'compact',
+    assets: { base: '/brand', version: '20260920-a' },
+    actions: '<a class="btn btn-line" href="/games/">Games</a>'
+           + '<a class="btn btn-primary" href="https://www.etsy.com/shop/GateIronLLC"'
+           + ' target="_blank" rel="noopener">Shop</a>',
+  });
+  assert.ok(html.includes('Hood River'));
+  assert.ok(html.includes('href="/games/"'), 'the consumer\'s own action row was dropped');
+  assert.ok(html.indexOf('btn-primary') < html.indexOf('account-slot'),
+    'actions must come before the account chip, as GateIron orders them');
+  assert.ok(html.includes('?v=20260920-a'), 'the consumer\'s cache marker was not used');
+  assert.ok(!/<script|\son[a-z]+\s*=/i.test(html));
+});

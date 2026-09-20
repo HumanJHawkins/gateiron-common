@@ -1,4 +1,4 @@
-# gateiron-brand
+# gateiron-common
 
 GateIron's house style, as one package: the palette, the two faces, the gate
 mark, the top bar, the footer, and the components every GateIron site draws —
@@ -8,7 +8,7 @@ One source of truth. A site that wears this does not keep its own copy of a
 colour, a font file or a header.
 
 ```bash
-npm install github:HumanJHawkins/gateiron-brand#v0.1.0
+npm install github:HumanJHawkins/gateiron-common#v0.1.0
 ```
 
 Pinned to a tag, always. A brand that changes when you deploy is a brand you
@@ -46,7 +46,7 @@ how this earns a v2 nobody wanted.
 2. **CommonJS.** GateIron is `require()`; NotUserError is `type: module`.
    Authored as CJS with a static `module.exports` object, so Node's ESM named
    export detection lets an ESM consumer write
-   `import { topBar } from 'gateiron-brand'`. There is a test for this.
+   `import { topBar } from 'gateiron-common'`. There is a test for this.
 3. **No inline script, no inline event handlers.** GateIron's content security
    policy sets `script-src-attr 'none'` and forbids inline `<script>` blocks.
    Every interactive component here must work without either — which is why the
@@ -111,7 +111,7 @@ how this earns a v2 nobody wanted.
 Plain data in, HTML strings out.
 
 ```js
-const { page, topBar, siteFooter, initials, assetUrl } = require('gateiron-brand');
+const { page, topBar, siteFooter, initials, assetUrl } = require('gateiron-common');
 ```
 
 ### `topBar(opts)`
@@ -152,7 +152,7 @@ The package ships files; the consumer serves them. In Express:
 
 ```js
 app.use('/brand', express.static(
-  path.dirname(require.resolve('gateiron-brand/package.json')) + '/assets',
+  path.dirname(require.resolve('gateiron-common/package.json')) + '/assets',
   { maxAge: '365d', immutable: true },
 ));
 ```
@@ -173,16 +173,32 @@ way a consumer's CSS could depend on is a **major**.
 `CHANGELOG.md` is the release note. A consumer upgrades deliberately:
 
 ```bash
-npm install github:HumanJHawkins/gateiron-brand#v0.2.0
+npm install github:HumanJHawkins/gateiron-common#v0.2.0
 ```
 
-## What does not belong here
+## What belongs here, and what does not
 
-- Any product's vocabulary. NotUserError's ticket statuses map to badge tones
-  in *its* `src/ui.js`, not here. This package knows about badges; it does not
-  know what "Waiting" means.
-- Anything school-specific, per requirement 12.
-- Anything that needs a build step.
+A package called "common" is one rename away from being a junk drawer, so the
+boundary is written down rather than assumed. **This is the presentation layer
+every GateIron site shares** — what a page looks like and the markup that draws
+it. Nothing else.
+
+Belongs here: colour, type, spacing, the bar, the footer, buttons, forms,
+tables, badges, notices, dialogs, and the small helpers those need (`esc`,
+`initials`, `assetUrl`).
+
+Does not:
+
+- **Any product's vocabulary.** NotUserError's ticket statuses map to badge
+  tones in *its* `src/ui.js`. This package knows about badges; it does not know
+  what "Waiting" means.
+- **Anything school-specific**, per requirement 12.
+- **Anything that needs a build step.**
+- **Shared business logic, database helpers, auth, or date maths.** If a second
+  kind of shared code appears, it gets its own package. The cost of a second
+  small dependency is a line in a manifest; the cost of a `common` that grew
+  three unrelated concerns is that no consumer can upgrade one without taking
+  the other two.
 
 ## Rollout
 
