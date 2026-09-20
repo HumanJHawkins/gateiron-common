@@ -3,6 +3,16 @@
 Semver. Changing a token's value is a minor. Removing a token, renaming a
 class, or changing what a function returns is a major.
 
+## 0.3.0 — 2026-09-20
+
+- The bar wears GateIron.com's own translucent paper tone over a blur, not a
+  flat surface colour. `--bar-bg` overrides it.
+- The footer is pinned to the end of the page: `body` is a flex column,
+  `main` grows, so a short page still ends with the footer at the bottom of
+  the window and a long one pushes it below the fold.
+- `h1` is 2rem, and `.subtitle` is the large secondary line under it.
+- `.field-pair` puts two fields on one line and drops to one when narrow.
+
 ## 0.2.0 — 2026-09-20
 
 **Breaking.** The dark theme is now opt-in, the bar and footer changed shape,
