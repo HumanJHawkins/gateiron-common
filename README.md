@@ -1,117 +1,43 @@
 # gateiron-common
 
-GateIron's house style, as one package: the palette, the two faces, the gate
-mark, the top bar, the footer, and the components every GateIron site draws —
-buttons, forms, tables, badges, notices, the account menu.
+The presentation layer GateIron's sites share: palette, type, the gate mark,
+the top bar, the footer, and the components pages are built from — buttons,
+forms, tables, badges, notices, the account menu.
 
-One source of truth. A site that wears this does not keep its own copy of a
-colour, a font file or a header.
+## Install
 
 ```bash
-npm install github:HumanJHawkins/gateiron-common#v0.1.0
+npm install --allow-git=root github:HumanJHawkins/gateiron-common#v0.1.0
 ```
 
-Pinned to a tag, always. A brand that changes when you deploy is a brand you
-can reason about; one that changes on its own is a support call from a district
-that saw two different sites on Tuesday.
+Install a tag, not a branch.
 
----
+npm 12 blocks git dependencies by default (`EALLOWGIT`). Put `allow-git=root`
+in the project's `.npmrc` so the setting travels with the repository — `root`
+permits only dependencies this `package.json` names, not ones a transitive
+dependency reaches for. A container build also needs `git` installed and
+`.npmrc` copied before `npm ci`.
 
-## Why a package rather than a service
+## Serve the assets
 
-Considered and rejected: a "managed" copy synced from gateiron.com to each
-satellite. It buys the ability to push a change to sites you do not deploy,
-which is not a problem here — Jeff deploys all of them — and it costs a daemon
-to monitor, a window where two sites disagree, and a failure mode where the
-brand is stale with nothing saying so. A pinned dependency has none of those
-and updates with one command.
+Everything the chrome references lives under `assets/`, including the
+stylesheet, whose `@font-face` rules resolve relative to itself. One mount:
 
-Public repository, because the Lightsail box has no GitHub credentials and a
-brand has no secrets. See LICENSE for what that does and does not grant.
+```js
+const path = require('path');
+const ASSETS = path.join(path.dirname(require.resolve('gateiron-common/package.json')), 'assets');
+app.use('/brand', express.static(ASSETS, { maxAge: '365d', immutable: true }));
+```
 
----
-
-## Requirements this has to meet
-
-Written down because three of them are not obvious, and all three came from a
-consumer that has not adopted the package yet. Shaping an API on the two
-easiest consumers and discovering GateIron's constraints at the end is exactly
-how this earns a v2 nobody wanted.
-
-### From GateIron.com — the strictest consumer
-
-1. **No build step.** GateIron has no bundler by decision. The package must be
-   consumable as plain files that Node can `require` and a browser can load.
-   No compile, no transpile, no CSS preprocessor.
-2. **CommonJS.** GateIron is `require()`; NotUserError is `type: module`.
-   Authored as CJS with a static `module.exports` object, so Node's ESM named
-   export detection lets an ESM consumer write
-   `import { topBar } from 'gateiron-common'`. There is a test for this.
-3. **No inline script, no inline event handlers.** GateIron's content security
-   policy sets `script-src-attr 'none'` and forbids inline `<script>` blocks.
-   Every interactive component here must work without either — which is why the
-   account menu is a `<details>` element and not a click handler.
-4. **Two densities.** Game pages carry `body.gi-compact` and the bar tightens
-   so the board keeps its height. `page({ density: 'compact' })`, or set the
-   class yourself if you build your own shell.
-5. **Asset addresses are the consumer's.** GateIron stamps `?v=<build>` on
-   every asset through its own `versionAssets`, and its images pass through
-   Hostinger's CDN. Nothing here hard-codes a path: every address is built by
-   `assetUrl({ base, version }, name)`.
-6. **Serve-time string substitution.** GateIron injects chrome into static HTML
-   at serve time with no request object in scope. So the functions take **plain
-   data** — never an Express `req`. This is the single most important
-   constraint in this document and the easiest one to violate by accident.
-7. **The account slot may be filled by the client.** GateIron's
-   `/js/account.js` fills the bar from `/api/me` after load; NotUserError
-   renders it on the server. Passing no `account` and no `signIn` emits an
-   empty `<span class="account-slot">` for the client to fill.
-
-### From NotUserError
-
-8. **Initials, not a photograph, by default.** Google hands back a picture URL
-   on `lh3.googleusercontent.com`; using it puts a third-party request on every
-   signed-in page. A consumer that wants it passes `avatarSrc` and accepts the
-   request.
-9. **A context line in the bar.** The district name sits under the product
-   name. Generalised as `context`.
-10. **Light and dark.** GateIron has only ever had paper. The dark theme lives
-    here now, in the same family — warm charcoals so clay and pine keep their
-    temperature.
-
-### From NotUnderConstruction
-
-11. **A classroom footer.** Pages a child may be looking at get a reduced
-    footer: no shop, no outbound commercial links, nothing that reads as an
-    advertisement. `siteFooter({ variant: 'classroom' })` sets the class and
-    the default byline; **which links belong in each variant is Jeff's call**
-    and is passed in, not decided here.
-12. **Nothing school-specific.** No district, school or class name in this
-    package, ever. Same rule NotUserError already holds itself to.
-
-### Everywhere
-
-13. **Accessible by construction.** A skip link ahead of the bar, `aria-current`
-    on the active nav item, a visible focus ring, and colour never the only
-    carrier of meaning — every badge states its value in words and the priority
-    ramp is ordered by weight as well as hue.
-14. **Self-hosted faces.** Fraunces and Hanken Grotesk travel in `assets/fonts`
-    under the SIL Open Font License 1.1, with both licence texts beside them.
-    No page may reach fonts.googleapis.com: a child's browser must not make a
-    third-party request, and a district that allow-lists one domain should not
-    need to allow-list Google's.
-15. **Escape everything.** `esc()` is applied to every interpolated value in
-    this package. A consumer passing a user's name into the bar must not have
-    to think about it.
-
----
+Pass the package version as `assets.version` and cache hard. A new release is a
+new address.
 
 ## API
 
 Plain data in, HTML strings out.
 
 ```js
-const { page, topBar, siteFooter, initials, assetUrl } = require('gateiron-common');
+const { page, topBar, siteFooter, initials, assetUrl, esc } = require('gateiron-common');
 ```
 
 ### `topBar(opts)`
@@ -120,93 +46,109 @@ const { page, topBar, siteFooter, initials, assetUrl } = require('gateiron-commo
 |---|---|
 | `home` | where the mark and wordmark link |
 | `product` | the name in the bar |
-| `context` | the smaller line under it — a district, a class |
+| `context` | the smaller line beneath it — a district, a class |
 | `nav` | `[{ href, label, current?, external? }]` |
-| `account` | `{ name, email, role?, avatarSrc?, accent?, menu: [...] }`, or omit |
+| `account` | `{ name, email, role?, avatarSrc?, accent?, menu }`, or omit |
 | `signIn` | `{ href, label }` for the signed-out state |
-| `actions` | raw HTML injected before the account chip, for a consumer's own buttons |
+| `actions` | HTML placed before the account chip, for the site's own buttons |
 | `assets` | `{ base, version }` |
 
-A menu entry is `{ href, label }` or `{ label, form: { action, method, hidden } }`
-so a sign-out POST is a real form rather than a link that changes state.
+A menu entry is `{ href, label }`, or
+`{ label, form: { action, method, hidden } }` for anything that changes state —
+sign-out is a POST, not a link a prefetcher can follow.
+
+Omitting both `account` and `signIn` emits `<span class="account-slot"></span>`
+for a client script to fill after load. Pass `accountSlot: false` to leave
+nothing.
+
+Avatars are initials by default. Pass `avatarSrc` for a picture; on a signed-in
+page that is a third-party request on every load.
 
 ### `siteFooter(opts)`
 
-`links`, `byline` (`null` to omit), `finePrint`, `variant: 'classroom'`, `assets`.
+`links`, `byline` (`null` omits it), `finePrint`, `variant: 'classroom'`,
+`assets`.
+
+The classroom variant is the quieter footer for pages a child may be reading.
+It sets the class and the default byline; the links are yours to pass.
 
 ### `page(opts)`
 
-The whole document, for a consumer that does not build its own shell:
-`title`, `body`, `head`, `lang`, `density`, `bodyClass`, `footer`, plus
-everything `topBar` takes. GateIron should **not** use this — it has its own
-shell and should call `topBar` and `siteFooter` into it.
+A whole document: `title`, `body`, `head`, `lang`, `density`, `bodyClass`,
+`footer`, plus everything `topBar` takes. For sites without their own shell.
+GateIron has one — it should call `topBar` and `siteFooter` into it.
 
 ### `initials(person)`, `assetUrl(assets, name)`, `esc(value)`
 
-Exported because a consumer that renders part of the bar itself still wants the
-same initials, the same addresses and the same escaping.
+For a site rendering part of the bar itself and wanting the same initials,
+addresses and escaping.
 
-## Serving the assets
+## Constraints
 
-The package ships files; the consumer serves them. In Express:
+What the consuming sites need, and what this package does about it.
 
-```js
-app.use('/brand', express.static(
-  path.dirname(require.resolve('gateiron-common/package.json')) + '/assets',
-  { maxAge: '365d', immutable: true },
-));
-```
+**GateIron has no build step and uses `require()`.** Plain files, CommonJS, no
+compile. The `module.exports` object is statically analysable, so ESM consumers
+get named imports.
 
-The stylesheet lives in `assets/` too, beside the fonts its `@font-face` rules
-reference: **one mount serves the whole package.** Cache hard and put the
-package version in `assets.version`, so a new version is a new address and
-nothing stale survives.
+**GateIron builds its chrome by string substitution at serve time, with no
+request in scope.** The functions take plain data — never an Express `req`.
 
----
+**GateIron's CSP sets `script-src-attr 'none'` and forbids inline `<script>`.**
+Nothing here emits either. The account menu is a `<details>` element.
+
+**Game pages tighten the bar.** `body.gi-compact`, or
+`page({ density: 'compact' })`.
+
+**GateIron stamps its own build marker on every asset and serves images through
+a CDN.** No address is hard-coded; `assetUrl({ base, version }, name)` builds
+them all.
+
+**GateIron fills the account slot client-side from `/api/me`; NotUserError
+renders it server-side.** Both work.
+
+**Districts and classrooms allow-list domains, and children's browsers should
+not reach third parties.** Fraunces and Hanken Grotesk are in `assets/fonts`
+under the SIL Open Font License 1.1, with both licence texts. Nothing here
+fetches from another origin.
+
+**Colour is never the only carrier of meaning.** Badges state their value in
+words; the priority ramp is ordered by weight as well as hue. A skip link
+precedes the bar, the active nav item carries `aria-current`, and focus is
+visible.
+
+**Every interpolated value is escaped.** Passing a user's name into the bar is
+safe.
+
+## What belongs here
+
+The presentation layer, and nothing else: colour, type, spacing, the bar, the
+footer, buttons, forms, tables, badges, notices, dialogs, and the helpers those
+need.
+
+Not here:
+
+- **A product's vocabulary.** NotUserError maps ticket statuses to badge tones
+  in its own `src/ui.js`. This package knows badges; it does not know what
+  "Waiting" means.
+- **Any school-, district- or class-specific value.**
+- **Anything requiring a build step.**
+- **Business logic, database helpers, auth, date maths.** A second kind of
+  shared code gets a second package, so a site can upgrade one without taking
+  the others.
 
 ## Versioning
 
-Semver, and the tag is the contract. A change to a token's *value* is a minor;
-removing a token, renaming a class, or changing what a function returns in a
-way a consumer's CSS could depend on is a **major**.
-
-`CHANGELOG.md` is the release note. A consumer upgrades deliberately:
-
-```bash
-npm install github:HumanJHawkins/gateiron-common#v0.2.0
-```
-
-## What belongs here, and what does not
-
-A package called "common" is one rename away from being a junk drawer, so the
-boundary is written down rather than assumed. **This is the presentation layer
-every GateIron site shares** — what a page looks like and the markup that draws
-it. Nothing else.
-
-Belongs here: colour, type, spacing, the bar, the footer, buttons, forms,
-tables, badges, notices, dialogs, and the small helpers those need (`esc`,
-`initials`, `assetUrl`).
-
-Does not:
-
-- **Any product's vocabulary.** NotUserError's ticket statuses map to badge
-  tones in *its* `src/ui.js`. This package knows about badges; it does not know
-  what "Waiting" means.
-- **Anything school-specific**, per requirement 12.
-- **Anything that needs a build step.**
-- **Shared business logic, database helpers, auth, or date maths.** If a second
-  kind of shared code appears, it gets its own package. The cost of a second
-  small dependency is a line in a manifest; the cost of a `common` that grew
-  three unrelated concerns is that no consumer can upgrade one without taking
-  the other two.
+Semver; the tag is the contract. Changing a token's value is a minor. Removing
+a token, renaming a class, or changing what a function returns is a major.
+`CHANGELOG.md` carries the release notes.
 
 ## Rollout
 
 1. Build it. *(this repository)*
-2. NotUserError and NotUnderConstruction adopt it, and the bugs come out there.
-3. GateIron.com and NotHangman come home to it.
+2. NotUserError and NotUnderConstruction adopt it.
+3. GateIron.com and NotHangman follow.
 
-Step 3 is the one that decides whether the API was right, so the requirements
-above were written from GateIron's constraints before step 2 started. **Render
-one GateIron page from this package during step 2** — not a migration, just a
-test that the API fits — rather than finding out at step 3.
+GateIron is the strictest consumer and the last to migrate, so its constraints
+shaped the API first. `docs/ADOPTING-GATEIRON.md` is the hand-off, including
+what still needs deciding there.

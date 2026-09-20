@@ -1,32 +1,21 @@
 'use strict';
-// The GateIron chrome: the bar across the top, the footer, and the document
-// around them, as strings.
+// The bar, the footer, and the document around them, as strings.
 //
-// CommonJS, and plain data in, HTML out. Both of those are requirements rather
-// than taste - see README.md - and the second is the one that is easy to break:
-// NOTHING HERE MAY TOUCH A REQUEST OBJECT. An Express `req` would tie the
-// package to one framework and one Node version's idea of a request, and
-// GateIron builds its chrome by string substitution at serve time with no
-// request in scope at all.
+// Nothing here may touch a request object. GateIron substitutes its chrome into
+// static HTML at serve time, with no request in scope.
 
 const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ESC[c]);
 
-// Every asset address is built through here so a consumer can put the files
-// wherever it serves static content and stamp its own cache marker on them.
-// GateIron's versionAssets appends ?v=<build>; NotUserError uses the brand's
-// own version. Neither is hard-coded.
+// Consumers serve the files from their own path and stamp their own cache
+// marker, so no address is hard-coded.
 function assetUrl(assets, name) {
   const base = String((assets && assets.base) || '/brand').replace(/\/+$/, '');
   const v = assets && assets.version;
   return base + '/' + name + (v ? '?v=' + encodeURIComponent(v) : '');
 }
 
-/**
- * Two letters from a name, one from an address. Never empty, never undefined.
- * Exported because a consumer that renders its own avatar still wants the same
- * initials this package would have drawn.
- */
+/** Two letters from a name, one from an address. Never empty. */
 function initials(person) {
   const name = ((person && person.name) || '').trim();
   if (name) {
@@ -40,9 +29,8 @@ function initials(person) {
 }
 
 /**
- * The gate. Two files rather than one: the mark is dark ink and disappears on
- * a dark ground, so the browser picks before it fetches.
- * `alt` is empty because the wordmark beside it already names the product.
+ * The gate. Two files: the mark is dark ink and disappears on a dark ground.
+ * `alt` is empty - the wordmark beside it already names the product.
  */
 function gateMark(assets) {
   return '<picture>'
@@ -54,7 +42,6 @@ function gateMark(assets) {
 function navHtml(nav) {
   if (!nav || !nav.length) return '';
   const items = nav.map((item) => {
-    // aria-current, not a class: the marker is announced as well as seen.
     const current = item.current ? ' aria-current="page"' : '';
     const rel = item.external ? ' target="_blank" rel="noopener"' : '';
     return '<a href="' + esc(item.href) + '"' + current + rel + '>' + esc(item.label) + '</a>';
@@ -64,9 +51,7 @@ function navHtml(nav) {
 
 function avatarHtml(account) {
   const cls = 'avatar' + (account.accent ? ' is-accent' : '');
-  // An image avatar is a third-party request on every signed-in page unless the
-  // consumer proxies it. Initials are the default for that reason; a consumer
-  // that wants the picture passes it and accepts the request.
+  // An image is a third-party request on every signed-in page. Initials default.
   if (account.avatarSrc) {
     return '<span class="' + cls + ' has-img"><img src="' + esc(account.avatarSrc)
       + '" alt="" width="64" height="64" referrerpolicy="no-referrer"></span>';
@@ -75,13 +60,11 @@ function avatarHtml(account) {
 }
 
 /**
- * The account chip. A <details> element, so the menu opens with no JavaScript:
- * a requirement, not a convenience - GateIron's content security policy
- * forbids inline script and inline event handlers, and a class page must work
- * for a child whose school blocks things.
+ * The account chip. <details> rather than a click handler: GateIron's CSP
+ * forbids inline script and inline event handlers.
  *
- * Pass `account: null` with `signIn` for the signed-out state, or neither to
- * leave the slot empty (GateIron fills it client-side from /api/me).
+ * Pass `signIn` without `account` for the signed-out state, or neither to leave
+ * an empty slot for a client script to fill.
  */
 function accountHtml(opts) {
   const account = opts.account;
@@ -113,10 +96,7 @@ function accountHtml(opts) {
     + '</details>';
 }
 
-/**
- * The bar. `home` is where the mark and wordmark link, `product` is the name
- * shown, `context` the smaller line under it (a district, a class, a site).
- */
+/** `context` is the smaller line under the product name - a district, a class. */
 function topBar(opts) {
   const o = opts || {};
   const context = o.context ? '<small>' + esc(o.context) + '</small>' : '';
@@ -135,10 +115,8 @@ function topBar(opts) {
 }
 
 /**
- * The footer. `variant: 'classroom'` is the reduced one for pages a child may
- * be looking at: no shop, no outbound commercial links, nothing that reads as
- * an advertisement. Which links belong in each variant is the consumer's to
- * pass; the variant only decides the class and the default byline.
+ * `variant: 'classroom'` is the quieter footer for pages a child may be
+ * reading. It sets the class and the default byline; the links are passed in.
  */
 function siteFooter(opts) {
   const o = opts || {};
@@ -157,11 +135,7 @@ function siteFooter(opts) {
     + '</footer>';
 }
 
-/**
- * A whole document. A consumer that builds its own HTML shell (GateIron does,
- * by substitution into static pages) should use topBar and siteFooter alone
- * and ignore this.
- */
+/** A whole document. Sites with their own shell use topBar and siteFooter. */
 function page(opts) {
   const o = opts || {};
   const bodyClass = o.density === 'compact' ? ' class="gi-compact"' : (o.bodyClass ? ' class="' + esc(o.bodyClass) + '"' : '');
@@ -179,11 +153,9 @@ function page(opts) {
     + '\n</body>\n</html>';
 }
 
-// Every value here is a bare identifier, and that is load-bearing: Node
-// detects a CommonJS module's named exports by statically reading this object,
-// so a property whose value is a call expression (VERSION used to be
-// `require('./package.json').version` here) turns the whole thing into a
-// default-only import for every ESM consumer. There is a test for it.
+// Keep every value below a bare identifier. Node reads this object statically
+// to find a CommonJS module's named exports, and a call expression here makes
+// the package default-only for ESM consumers.
 const VERSION = require('./package.json').version;
 
 module.exports = {

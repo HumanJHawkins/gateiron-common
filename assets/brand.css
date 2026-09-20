@@ -1,23 +1,9 @@
-/* ============================================================
-   GateIron house style, as worn by NotUserError.
+/* GateIron house style. Token names match GateIron.com's base.css.
 
-   The palette, the two faces and the pill buttons are GateIron.com's, so a
-   district that meets both sites sees one company. What is added here is what
-   a work application needs and a marketing site does not: a dark theme, dense
-   tables, status and priority badges, and a bar that holds a district name.
+   Colour never carries meaning alone: badges state their value in words and
+   the priority ramp is ordered by weight. */
 
-   Token NAMES are kept identical to GateIron's base.css on purpose. When this
-   becomes a shared package, a rule written against --clay or --paper-dark
-   moves without translation.
-
-   Colour is never the only carrier of meaning: every badge states its value in
-   words, and the priority ramp is also ordered by weight.
-   ============================================================ */
-
-/* ---------------- faces ----------------
-   Self-hosted, same two files GateIron serves, for the same reason: a page
-   here must not make a third-party request, and a district that allow-lists
-   this domain should not need to allow-list Google's as well. */
+/* Faces are self-hosted. No page here makes a third-party request. */
 @font-face {
   font-family: 'Fraunces';
   font-style: normal;
@@ -67,9 +53,7 @@
   --pine: #3f4e3b;
   --pine-dark: #2c3829;
 
-  /* ochre - the one hue GateIron has no name for, and a help desk needs a
-     third signal between "fine" and "urgent". Drawn from --sand so it sits in
-     the same family rather than arriving as a browser yellow. */
+  /* A third signal between "fine" and "urgent", drawn from --sand. */
   --ochre-light: #e6c98a;
   --ochre: #a97c22;
   --ochre-dark: #7c5a16;
@@ -104,9 +88,8 @@
   --bar-h: 3.5rem;
 }
 
-/* GateIron has no night. This is it, in the same family: warm charcoals rather
-   than neutral greys, so the clay and pine keep their temperature. Accents move
-   one rung lighter because the dark rungs go muddy on a dark ground. */
+/* Warm charcoals rather than neutral greys, so clay and pine keep their
+   temperature. Accents move a rung lighter; the dark rungs go muddy here. */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #17140f;
@@ -175,7 +158,7 @@ p { margin: 0 0 0.9rem; }
 .muted { color: var(--text-muted); font-size: 0.9rem; }
 .stale { font-weight: 700; }
 
-/* One visible focus ring everywhere, keyboard only. */
+/* Keyboard focus only. */
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
@@ -200,8 +183,6 @@ p { margin: 0 0 0.9rem; }
   z-index: 20;
   background: var(--surface);
   border-bottom: 1px solid var(--border-color);
-  /* The bar is the one element every page shares; a shadow under it is what
-     separates it from a table that scrolls beneath. */
   box-shadow: 0 1px 0 var(--border-color);
 }
 
@@ -213,9 +194,7 @@ p { margin: 0 0 0.9rem; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  /* Wrap rather than hide: on a narrow screen the nav drops to its own line
-     instead of disappearing. */
-  flex-wrap: wrap;
+  flex-wrap: wrap;   /* the nav drops to its own line rather than disappearing */
 }
 
 .brand {
@@ -245,7 +224,7 @@ p { margin: 0 0 0.9rem; }
   color: var(--text-muted);
 }
 
-/* Pushes the account chip to the right whatever is or is not between them. */
+/* Pushes the account chip right whatever sits between. */
 .topbar-spacer { flex: 1 1 auto; }
 
 .topnav {
@@ -270,9 +249,6 @@ p { margin: 0 0 0.9rem; }
 }
 
 /* ---------------- account chip ---------------- */
-/* <details> rather than a script: the menu opens with no JavaScript, keeps
-   keyboard and screen-reader behaviour the browser already implements, and
-   cannot break on a page that loads nothing else. */
 .account { position: relative; flex: 0 0 auto; }
 .account > summary {
   list-style: none;
@@ -299,9 +275,6 @@ p { margin: 0 0 0.9rem; }
 }
 .account .who b { display: block; color: var(--text); font-weight: 600; }
 
-/* Initials, not a photograph. Google supplies a picture URL, but using it
-   would put a third-party request on every signed-in page - the same trade
-   the fonts above refuse - and initials identify the account just as well. */
 .avatar {
   width: 2.2rem;
   height: 2.2rem;
@@ -317,13 +290,11 @@ p { margin: 0 0 0.9rem; }
   border: 1.5px solid var(--border-color);
 }
 .avatar.is-accent { background: var(--clay); }
-/* A consumer that passes a picture instead of initials. The image fills the
-   circle; the border and size stay the bar's, not the image's. */
+/* The image fills the circle; the size stays the bar's. */
 .avatar.has-img { padding: 0; overflow: hidden; }
 .avatar.has-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* Left empty for a consumer that fills the bar client-side after load. It
-   holds the bar's height steady so nothing jumps when the account arrives. */
+/* Holds the bar's height while a client script fills it. */
 .account-slot { display: flex; align-items: center; min-height: 2.2rem; }
 
 .account-menu {
@@ -399,11 +370,8 @@ p { margin: 0 0 0.9rem; }
 
 .btn-small { font-size: 0.85rem; padding: 0.3em 0.8em; }
 
-/* Any bare <button> in the page body is the secondary pill. Thirty-odd screens
-   were written before this stylesheet existed and say plain <button>; styling
-   the element rather than editing every one of them is what keeps them from
-   looking like a form from 1998. Scoped to main so the account menu's own
-   items are untouched. */
+/* Bare <button> in the page body is the secondary pill. Scoped to main so the
+   account menu's own items are untouched. */
 main button:not(.btn):not(.linkish) {
   display: inline-flex;
   align-items: center;
@@ -420,7 +388,7 @@ main button:not(.btn):not(.linkish) {
 }
 main button:not(.btn):not(.linkish):hover { background: var(--surface-2); }
 
-/* The one that submits a whole form is the primary action on that screen. */
+/* A form's submit is that screen's primary action. */
 main form > button[type="submit"]:not(.btn):not(.linkish) {
   background: var(--accent);
   border-color: var(--accent);
@@ -460,19 +428,13 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 textarea { min-height: 8rem; resize: vertical; }
 input[type="checkbox"], input[type="radio"] { width: auto; }
 select {
-  /* The browser's own arrow disappears against a themed background on some
-     engines, so the control keeps room for it and the native widget stays. */
-  padding-right: 2rem;
+  padding-right: 2rem;   /* room for the native arrow */
 }
 .field-hint { color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0 0; }
 
-/* A form is read one field at a time, so it gets a column rather than the
-   page's full width - a 60rem-wide text input looks like a mistake. Tables
-   still get the whole page. */
+/* A column, not the page's full width. Tables still get the whole page. */
 form { max-width: 36rem; }
-/* Except the little ones inside a table row, which are controls, not forms.
-   Their buttons are cells in a row, so they lose the standalone form's
-   breathing room above the submit. */
+/* Except the little ones in a table row, which are controls, not forms. */
 td form, .row-actions form { max-width: none; display: inline; }
 td form > button, .row-actions form > button { margin-top: 0; }
 
@@ -508,10 +470,8 @@ form > button[type="submit"] { margin-top: 1.4rem; }
   margin: 1rem 0;
 }
 
-/* ---------------- tables ---------------- */
-/* The board and the queue are the screens staff live in, so the table is the
-   most important component here. It scrolls inside its own box rather than
-   making the page scroll sideways. */
+/* ---------------- tables ----------------
+   A table scrolls inside its own box rather than making the page scroll. */
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border-color);
@@ -520,8 +480,7 @@ form > button[type="submit"] { margin-top: 1.4rem; }
   margin-top: 1rem;
 }
 table { border-collapse: collapse; width: 100%; }
-/* Below this the columns start breaking a subject into one word per line,
-   which is unreadable. Past it the wrapper scrolls sideways instead. */
+/* Narrower than this, a subject breaks to one word per line. */
 .table-wrap table { min-width: 42rem; }
 th, td {
   text-align: left;
@@ -559,8 +518,7 @@ td.num { white-space: nowrap; color: var(--text-muted); font-variant-numeric: ta
 .badge-urgent { background: var(--urgent-bg); color: var(--urgent); border-color: var(--urgent); }
 .badge-quiet { background: var(--quiet-bg); color: var(--quiet); border-color: var(--border-strong); }
 
-/* Priority also reads by weight, so the order survives a greyscale print and
-   a colour-blind reader. */
+/* Weight as well as hue, so the order survives greyscale. */
 .prio-urgent { font-weight: 800; }
 .prio-high { font-weight: 700; }
 .prio-normal { font-weight: 500; }
@@ -589,9 +547,8 @@ td.num { white-space: nowrap; color: var(--text-muted); font-variant-numeric: ta
 .site-footer .by { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
 .site-footer .by img { height: 1.6rem; width: auto; opacity: 0.85; }
 
-/* The footer a child may be looking at. Nothing is hidden by this class - the
-   consumer passes a shorter link list - but the byline stops competing for
-   attention and the whole thing gets out of the way of the page. */
+/* Hides nothing - the consumer passes a shorter link list - but the byline
+   stops competing for attention. */
 .site-footer.is-classroom { background: transparent; }
 .site-footer.is-classroom .by { opacity: 0.7; }
 .site-footer.is-classroom .by img { height: 1.2rem; }
@@ -605,9 +562,7 @@ td.num { white-space: nowrap; color: var(--text-muted); font-variant-numeric: ta
 }
 
 /* ---------------- compact density ----------------
-   A game page keeps its board height, so the bar gives up everything it can:
-   GateIron chose 28px for the mark and 30px for the avatar on 2026-08-18. Same
-   markup, one class on <body>. */
+   A game page keeps its board height. Same markup, one class on <body>. */
 body.gi-compact .topbar-inner { min-height: 2.6rem; padding: 0.2rem 1rem; }
 body.gi-compact .brand img { height: 1.75rem; }
 body.gi-compact .brand .wordmark { font-size: 1rem; }
@@ -622,9 +577,7 @@ body.gi-compact main { padding-top: 1rem; }
   .account .who { display: none; }
   main { padding: 1.25rem 0.9rem 3rem; }
 
-  /* Brand and account share the first line; the nav takes the second whole.
-     Letting them wrap in source order instead put the avatar on a line of its
-     own and made the bar a third of the screen. */
+  /* Brand and account share the first line; the nav takes the second. */
   .topbar-inner { gap: 0.4rem 0.6rem; padding: 0.4rem 0.9rem; }
   .topbar-spacer { display: none; }
   .brand { flex: 1 1 auto; }

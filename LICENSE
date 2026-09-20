@@ -1,27 +1,23 @@
-PROPOSED — NOT FINAL. Jeff writes the licence text; this states the intent so
-the repository is not published without one.
+PROPOSED — NOT FINAL. Jeff writes the licence text.
 
-Three different things are in here and they do not want the same terms:
+Three things are in here and they do not take the same terms.
 
-1. THE CODE AND THE STYLESHEET (chrome.js, assets/brand.css, test/)
-   Proposed: MIT. Nothing in them is a competitive asset, and a permissive
-   licence is what makes the repository safe to make public so the Lightsail
-   box can install it without credentials.
+1. CODE AND STYLESHEET (chrome.js, assets/brand.css, test/)
+   Proposed: MIT. A permissive licence keeps the repository public, which is
+   what lets the Lightsail box install it without credentials.
 
-2. THE FONTS (assets/fonts/)
+2. FONTS (assets/fonts/)
    Not GateIron's to license. Fraunces and Hanken Grotesk are under the SIL
    Open Font License 1.1, which permits bundling and redistribution provided
    the licence travels with them and they are not sold on their own. Both
    texts are in that directory and must stay there.
 
-3. THE GATE MARK (assets/gate-dark.png, assets/gate-light.png) AND THE NAME
-   GateIron, LLC's. Publishing the files in a public repository is not a
-   grant of permission to use the mark or the name. Proposed wording: "The
-   GateIron name and the gate mark are trademarks of GateIron, LLC. No licence
-   to use them is granted by this repository."
+3. THE GATE MARK (assets/gate-*.png) AND THE NAME
+   GateIron, LLC's. Publishing the files here grants no permission to use the
+   mark or the name. Proposed: "The GateIron name and the gate mark are
+   trademarks of GateIron, LLC. No licence to use them is granted by this
+   repository."
 
-   Worth Jeff's decision rather than mine: the mark is already downloadable
-   from gateiron.com, so a public repository reveals nothing new. If he would
-   rather it not ship here at all, the package can take the mark as a consumer
-   supplied asset instead - the only code change is that gateMark() reads a
-   path from the assets option.
+   The mark is already downloadable from gateiron.com, so a public repository
+   exposes nothing new. If it should not ship here at all, gateMark() can read
+   a path from the assets option and the consumer supplies the file.

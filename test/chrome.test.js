@@ -1,8 +1,5 @@
 'use strict';
-// Node's own test runner, no dependencies - this package has none and is not
-// going to acquire one to test three hundred lines of string building.
-//
-//   npm test
+// npm test
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { execFileSync } = require('node:child_process');
@@ -28,11 +25,9 @@ test('escapes every interpolated value', () => {
 test('asset addresses come from the consumer, with no hard-coded path', () => {
   assert.equal(brand.assetUrl({ base: '/static/x/', version: '9' }, 'brand.css'),
     '/static/x/brand.css?v=9');
-  // A consumer with its own cache-busting scheme passes no version.
   assert.equal(brand.assetUrl({ base: 'https://cdn.example/b' }, 'gate-dark.png'),
     'https://cdn.example/b/gate-dark.png');
-  // And the default has to be something, so a consumer that passes nothing at
-  // all still renders rather than emitting "undefined/brand.css".
+  // A consumer passing nothing still renders, not "undefined/brand.css".
   assert.equal(brand.assetUrl(undefined, 'brand.css'), '/brand/brand.css');
 });
 
@@ -45,9 +40,8 @@ test('initials: two letters from a name, one from an address', () => {
   assert.equal(brand.initials(undefined), '?');
 });
 
+// GateIron's CSP sets script-src-attr 'none' and forbids inline <script>.
 test('the account menu carries no inline script and no event handler', () => {
-  // GateIron's CSP sets script-src-attr 'none' and forbids inline <script>.
-  // A component that needs either cannot ship on that site at all.
   const html = brand.page({
     title: 'x',
     body: '<p>y</p>',
@@ -61,8 +55,7 @@ test('the account menu carries no inline script and no event handler', () => {
   assert.ok(!/<script/i.test(html), 'a <script> block appeared in the chrome');
   assert.ok(!/\son[a-z]+\s*=/i.test(html), 'an inline event handler appeared in the chrome');
   assert.ok(html.includes('<details class="account"'), 'the menu is not a details element');
-  // Sign-out is a POST form, not a link: a link that changes state is a link a
-  // prefetcher will follow.
+  // A link that changes state is one a prefetcher will follow.
   assert.ok(html.includes('<form method="post" action="/logout">'));
 });
 
@@ -70,7 +63,6 @@ test('signed out renders a sign-in button; no account at all leaves a slot', () 
   const out = brand.topBar({ signIn: { href: '/login', label: 'Staff sign in' }, assets: ASSETS });
   assert.ok(out.includes('href="/login"') && out.includes('Staff sign in'));
 
-  // GateIron fills this from /api/me after load.
   const slot = brand.topBar({ assets: ASSETS });
   assert.ok(slot.includes('<span class="account-slot"></span>'));
 
@@ -106,10 +98,9 @@ test('the skip link comes before the bar in the DOM', () => {
   assert.ok(html.includes('<main id="main" tabindex="-1">'));
 });
 
+// Node's named-export detection reads a static module.exports object. A dynamic
+// one leaves ESM consumers with a default import only, and says nothing.
 test('an ESM consumer can import the named exports', () => {
-  // NotUserError is type: module. Node's named-export detection reads a static
-  // module.exports object; a dynamic one would silently leave an ESM consumer
-  // with only a default import, which is why this is a test and not a comment.
   const script = "import { topBar, initials } from " + JSON.stringify(path.resolve(__dirname, '..', 'chrome.js'))
     + "; console.log(typeof topBar, initials({ name: 'Ada Lovelace' }));";
   const out = execFileSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8' });
@@ -121,9 +112,7 @@ test('every asset the chrome asks for is actually in the package', () => {
   const names = [...html.matchAll(/\/brand\/([\w./-]+)/g)].map((m) => m[1]);
   assert.ok(names.length >= 3, 'expected the stylesheet and both gate marks');
   for (const name of new Set(names)) {
-    // One static mount serves the whole package, so everything the chrome
-    // asks for must sit under assets/ - including the stylesheet, whose
-    // @font-face rules resolve relative to itself.
+    // One mount serves the package, so everything sits under assets/.
     assert.ok(fs.existsSync(path.resolve(__dirname, '..', 'assets', name)),
       'missing from the package: ' + name);
   }
@@ -146,10 +135,8 @@ test('the stylesheet fetches nothing from a third party', () => {
 });
 
 test('the bar GateIron needs can be built from this package', () => {
-  // Not a migration - a standing check that the API still fits the consumer
-  // that has not adopted it yet. GateIron's bar is: compact density, its own
-  // button row before the account chip, and an account slot its client fills
-  // from /api/me after load.
+  // GateIron has not adopted the package yet. This fails here rather than
+  // there if the API stops fitting what its bar needs.
   const html = brand.topBar({
     home: '/',
     product: 'GateIron, LLC',
