@@ -3,6 +3,12 @@
 Semver. Changing a token's value is a minor. Removing a token, renaming a
 class, or changing what a function returns is a major.
 
+## 0.4.0 — 2026-09-20
+
+- The line under the name in the account chip is a `<span class="role">`, and
+  `account.accent` now puts `.is-accent` on the chip as well as the avatar, so
+  an unusual way of being signed in is visible rather than inferred.
+
 ## 0.3.0 — 2026-09-20
 
 - The bar wears GateIron.com's own translucent paper tone over a blur, not a

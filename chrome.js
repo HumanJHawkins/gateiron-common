@@ -93,8 +93,11 @@ function accountHtml(opts) {
     return '<a href="' + esc(item.href) + '">' + esc(item.label) + '</a>';
   }).join('');
   const who = account.name || account.email;
-  const sub = account.role ? esc(account.role) : '';
-  return '<details class="account">'
+  // The second line says how you are signed in, which matters most when it is
+  // not the ordinary way. `accent` colours it and the avatar together.
+  const sub = account.role
+    ? '<span class="role">' + esc(account.role) + '</span>' : '';
+  return '<details class="account' + (account.accent ? ' is-accent' : '') + '">'
     + '<summary aria-label="' + esc(account.menuLabel || 'Account menu') + '">'
     + '<span class="who"><b>' + esc(who) + '</b>' + sub + '</span>'
     + avatarHtml(account)

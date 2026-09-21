@@ -296,6 +296,8 @@ p { margin: 0 0 0.9rem; }
   white-space: nowrap;
 }
 .account .who b { display: block; color: var(--text); font-weight: 600; }
+.account .who .role { font-size: 0.8rem; }
+.account.is-accent .who .role { color: var(--accent); font-weight: 700; letter-spacing: 0.02em; }
 
 .avatar {
   width: 39px;
