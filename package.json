@@ -2,7 +2,7 @@
   "name": "gateiron-common",
   "version": "0.4.0",
   "description": "GateIron's house style: palette, faces, top bar, footer and components, shared by every GateIron site.",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "UNLICENSED",
   "author": "GateIron, LLC",
   "repository": "github:HumanJHawkins/gateiron-common",
   "main": "chrome.js",
@@ -15,7 +15,6 @@
     "chrome.js",
     "assets",
     "README.md",
-    "LICENSE",
     "CHANGELOG.md"
   ],
   "scripts": {
